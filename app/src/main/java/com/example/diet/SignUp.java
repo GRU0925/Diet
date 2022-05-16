@@ -33,6 +33,6 @@ public class SignUp extends AppCompatActivity{
         @Override
         public void onNothingSelected(AdapterView<?> adapterView) {
 
-        }
+        }1
     });*/
 }
