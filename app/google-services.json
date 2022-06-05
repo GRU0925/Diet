@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "16414091005",
+    "firebase_url": "https://objectdetection-d01ff-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "objectdetection-d01ff",
+    "storage_bucket": "objectdetection-d01ff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16414091005:android:fa58c9ae6459db139b8094",
+        "android_client_info": {
+          "package_name": "com.example.diet_master"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "16414091005-8cit2qv1vkfenbgsof6tiga8qp0qgjpd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.diet_master",
+            "certificate_hash": "aee20ef24edff5a3f11d3b9bdd1c16e8fa9da55c"
+          }
+        },
+        {
+          "client_id": "16414091005-hp0bod7fknbr9n776emc80ui5if46m4d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjj6bCp1fYAjKAIQD7VGJmWY88PN251cM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "16414091005-hp0bod7fknbr9n776emc80ui5if46m4d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
