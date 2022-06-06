@@ -41,6 +41,13 @@
                     android:hint="이름"
                     android:layout_weight="1"/>
 
+                <EditText
+                    android:id="@+id/addIngredients2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="이름" />
+
                 <Spinner
                     android:id="@+id/addType"
                     android:layout_width="match_parent"

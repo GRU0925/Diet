@@ -52,7 +52,7 @@ public class YoloActivity extends AppCompatActivity {
     final private static String TAG = "GILBOMI";
     Button btn_photo, btn_addFood;
     ImageView iv_photo;
-    EditText addIngredients;
+    EditText addIngredients, addIngredients2;
     DatePicker date;
     Spinner addType;
     final static int TAKE_PICTURE = 1;
@@ -205,8 +205,6 @@ public class YoloActivity extends AppCompatActivity {
 
                 float conf = confs.get(idx);
 
-
-                //List<String> cocoNames = Arrays.asList("a person", "a bicycle", "a motorbike", "an airplane", "a bus", "a train", "a truck", "a boat", "a traffic light", "a fire hydrant", "a stop sign", "a parking meter", "a car", "a bench", "a bird", "a cat", "a dog", "a horse", "a sheep", "a cow", "an elephant", "a bear", "a zebra", "a giraffe", "a backpack", "an umbrella", "a handbag", "a tie", "a suitcase", "a frisbee", "skis", "a snowboard", "a sports ball", "a kite", "a baseball bat", "a baseball glove", "a skateboard", "a surfboard", "a tennis racket", "a bottle", "a wine glass", "a cup", "a fork", "a knife", "a spoon", "a bowl", "a banana", "an apple", "a sandwich", "an orange", "broccoli", "a carrot", "a hot dog", "a pizza", "a doughnut", "a cake", "a chair", "a sofa", "a potted plant", "a bed", "a dining table", "a toilet", "a TV monitor", "a laptop", "a computer mouse", "a remote control", "a keyboard", "a cell phone", "a microwave", "an oven", "a toaster", "a sink", "a refrigerator", "a book", "a clock", "a vase", "a pair of scissors", "a teddy bear", "a hair drier", "a toothbrush");
                 List<String> cocoNames = Arrays.asList("rice",
                         "eels on rice",
                         "pilaf",
@@ -464,12 +462,25 @@ public class YoloActivity extends AppCompatActivity {
                         "eight treasure rice",
                         "hot & sour soup");
 
-                List<String> cocoNamesKR = Arrays.asList("밥", "장어덮밥", "필라프", "치킨마요덮밥", "돈가스덮밥", "쇠고기카레", "초밥", "치킨라이스");
+                List<String> cocoNamesKR = Arrays.asList("쌀밥", "장어덮밥", "필라프", "치킨마요덮밥", "돈가스덮밥", "소고기카레", "초밥", "치킨라이스", "볶음밥", "튀김덮밥", "비빔밥","토스트","크로와상","롤빵","건포도빵","칩버티",
+                        "햄버거","피자","샌드위치","우동","튀김우동","소바","라멘","고기국수","텐신국수","볶음국수","스파게티","팬케이크","문어빵","그라탕","야채볶음","크로켓","가지구이","시금치볶음","야채튀김","된장국","포타주","소세지",
+                        "오뎅","오믈렛","두부튀김","만두","스튜","생선조림","생선까스","연어구이","연어스테이크","생선회","꽁치구이","스키야키","탕수육","생선구이","계란찜","튀김","치킨","소고기돈가스","난반즈케","고등어조림","소고기감자조림",
+                        "함박스테이크","소고기스테이크","노가리","돼지고기볶음","마파두부","꼬치","양배추롤","믈렛","계란후라이","낫토","연두부","계란말이","냉면","소고기고추볶음","돼지고기조림","삼계탕","광어회","연어회","붕어빵","칠리새우","통닭","고기찜만두",
+                        "오므라이스","카레돈가스","미트스파게티","새우튀김","감자샐러드","야채샐러드","마카로니샐러드","야채두부스프","돈지루","중국식스프","소고기볼","우엉볶음","주먹밥","피자토스트","메밀소바","핫도그","감자튀김","잡곡밥","찬푸루",
+                        "그린커리","오키나와소바","망고푸딩","행인두부","찌개","닭갈비","드라이커리","돌솥밥","쌀국수","빠에야","탄탄멘","쿠시카츠","옐로커리","팬케이크","짬뽕","크레페","티라미수","와플","치즈케이크","쇼트케이크","찹수이","회과육","버섯리조또", "?",
+                        "떡국","프렌치토스트","국수","오므라이스","포토푀","치킨너겟","나메로","바게트","죽","장어덮밥","맑은국","유도후","미역볶음","유부초밥","등심돈가스","돈가스","치킨가스","햄돈가스","멘치카츠","말고기","베이글","스콘","또띠아","타코","나초",
+                        "떡갈비","스크램블에그","밥그라탕","라사냐","시저샐러드","오트밀","튀긴고기만두","단팥죽","머핀","팝콘","프로피트롤","도넛","애플파이","파르페","꿔바로우","케밥","감자볶음","오리구이","훠궈","삼겹살","샤오룽바오","월병","에그타르트",
+                        "소고기국수","돈가스","루러우판","오뎅탕","굴오믈렛","찹쌀밥","무조림","취두부","무화과","카오소이","새우스프","파파야샐러드","닭고기양념밥","라구","야채복음","돼지불고기","돼지꼬치구이","치킨샐러드","생선카레국수","찹쌀국수","레몬돼지고기",
+                        "족발","돼지목살","홍합볶음","버팔로윙","제육덮밥","오리고기덮밥","수육","완탕","치킨카레라이스","볶음면","치킨카레국수","코코넛스프","베트남쌀국수","소고기쌀국수","당면","에그롤","딤섬","새우전","고기만두","반쎄오","쌀케이크","찹쌀떡","로코모코","하우피아크림파이",
+                        "하와이도넛","월남쌈","스팸주먹밥","꼬리곰탕","닭볶음탕","춘권","브라우니","츄러스","토마토리조또","나시고렝","닭튀김","숯불치킨","닭죽");
                 int intConf = (int) (conf * 100);
 
                 Imgproc.putText(frame, cocoNames.get(idGuy) + " " + intConf + "%", box.tl(), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 0), 2);
+                Imgproc.putText(frame, cocoNames.get(idGuy) + " " + intConf + "%", box.tl(), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 0), 2);
                 addIngredients.setText(cocoNamesKR.get(idGuy));
+                addIngredients2.setText(cocoNamesKR.get(idGuy));
 
+                Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(255, 0, 0), 2);
                 Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(255, 0, 0), 2);
             }
 
@@ -541,8 +552,9 @@ public class YoloActivity extends AppCompatActivity {
             }
         });
 
-        //식재료 이름 가져오기
+        //음식 이름 가져오기
         addIngredients=(EditText)findViewById(R.id.addIngredients);
+        addIngredients2=(EditText)findViewById(R.id.addIngredients);
 
     }
 
