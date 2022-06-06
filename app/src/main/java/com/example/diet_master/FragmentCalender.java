@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,6 +45,9 @@ public class FragmentCalender extends Fragment {
     // Database
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference dbReference;
+    private FirebaseAuth auth;  // firebase auth
+    private FirebaseUser currentUser;  //firebase user
+    String uid;
     DailyInfo dInfo = null;
 
     SimpleDateFormat dateFormat4DB;
@@ -69,10 +74,13 @@ public class FragmentCalender extends Fragment {
         calendarView = rootView.findViewById(R.id.calendarView);
         TV_Date = rootView.findViewById(R.id.TV_Date);
 
-        TV_Date = rootView.findViewById(R.id.TV_Date);
+
         long curTime = System.currentTimeMillis();
         date = new Date(curTime);
         showDate();
+
+        uid = auth.getInstance().getUid();
+
 
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener()
         {
@@ -111,7 +119,7 @@ public class FragmentCalender extends Fragment {
         dbDate = dateFormat4DB.format(date);
         Log.d(TAG, "dataFormat : " + dbDate);
 
-        dbReference.child("FoodInfo").child("Uid").child(dbDate).addValueEventListener(new ValueEventListener() {
+        dbReference.child("FoodInfo").child(uid).child(dbDate).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 dInfo = dataSnapshot.getValue(DailyInfo.class);
@@ -132,12 +140,10 @@ public class FragmentCalender extends Fragment {
 
 
         for (String three : threeMeal) {
-            dbReference.child("FoodInfo").child("Uid").child(dbDate).child(three).orderByKey().addValueEventListener(new ValueEventListener() {
+            dbReference.child("FoodInfo").child(uid).child(dbDate).child(three).orderByKey().addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                     AddThreeMeal itemThreemeal = new AddThreeMeal(getContext());
-
 
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         AddFoodInfo item = new AddFoodInfo(getContext());
@@ -163,9 +169,7 @@ public class FragmentCalender extends Fragment {
                         tvItemCarb.setText(value.get("Carb"));
                         tvItemProtein.setText(value.get("Protein"));
                         tvItemFat.setText(value.get("Fat"));
-                        //if(item.getParent() != null) {
-                        //    ((ViewGroup)item.getParent()).removeView(item); // <- fix
-                        // }
+
                         lLayout.addView(item);
                     }
                 }
@@ -175,10 +179,6 @@ public class FragmentCalender extends Fragment {
 
                 }
             });
-
-
         }
     }
-
-
 }

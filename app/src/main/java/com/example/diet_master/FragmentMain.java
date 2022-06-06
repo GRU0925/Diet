@@ -1,17 +1,28 @@
 package com.example.diet_master;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -19,19 +30,26 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class FragmentMain extends Fragment {
 
     private static final String TAG = "FragmentMain";
     MainActivity mainActivity;
-    AddFoodInfo addFoodInfo;
 
     // rootView
     View rootView;
+
+    //
+    private long backpressedTime = 0;
 
     // Date
     TextView tDate;
@@ -39,10 +57,10 @@ public class FragmentMain extends Fragment {
     SimpleDateFormat dateFormat;
     String sDate;
 
-
     // Calory
     TextView tvRecoCal, tvMyCal, tvUseCal, tvCarb, tvProtein, tvFat, tvRecoCalinPG, tvRecoCarb, tvRecoProtein, tvRecoFat;    // fragment_main
     TextView tvItemFoodname, tvItemCal, tvItemCarb, tvItemProtein, tvItemFat, tvItemThreemeal;
+    ImageView ivItemFood;
     String dMyCal, dCarb, dProtein, dFat;   // 내 영양소 from FoodInfo
     String dRecoCal, dRecoCarb, dRecoProtein, dRecoFat, dBasicRate;     // 권장from UserInfo
     ProgressBar pgMyCal, pgCarb, pgProtein, pgFat;
@@ -50,24 +68,18 @@ public class FragmentMain extends Fragment {
 
     // Database
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private DatabaseReference dbReference, dbUserInfo, dbFoodInfo;
+    private DatabaseReference dbReference;
     private FirebaseAuth auth;  // firebase auth
     private FirebaseUser currentUser;  //firebase user
     String uid;
     DailyInfo dInfo;
-
-
-
     SimpleDateFormat dateFormat4DB;
     String dbDate;
 
+    // Storage
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReference();
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
-
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,9 +90,9 @@ public class FragmentMain extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        //mainActivity = (MainActivity)getActivity();
 
-        // DialyInfo
+
+        // DailyInfo
         tvMyCal = rootView.findViewById(R.id.TV_myCal);
         tvCarb = rootView.findViewById(R.id.TV_carb);
         tvProtein = rootView.findViewById(R.id.TV_protein);
@@ -101,11 +113,7 @@ public class FragmentMain extends Fragment {
         // CurrentUser
         currentUser = auth.getInstance().getCurrentUser();
         uid = auth.getInstance().getUid();
-
-        dbReference = FirebaseDatabase.getInstance().getReference();
-
-        //dbUserInfo = dbReference.child("UserInfo").child(uid);
-        //dbFoodInfo = dbReference.child("FoodInfo").child(uid);
+        dbReference = database.getReference();
 
         // addLayout
         lLayout = rootView.findViewById(R.id.Linear_root);
@@ -116,15 +124,16 @@ public class FragmentMain extends Fragment {
         date = new Date(curTime);
         showDate();
 
+        // dbDate
+        dateFormat4DB = new SimpleDateFormat("yyMMdd");
+        dbDate = dateFormat4DB.format(date);
+
         addFoodInfo();
         showDateInfo();
 
         return rootView;
     }
 
-    public void FragmentMain() {
-
-    }
 
     // Date 표시
     public void showDate() {
@@ -137,39 +146,48 @@ public class FragmentMain extends Fragment {
 
     // DailyInfo(일일섭취 칼로리, 3대영양소 표시)
     public void showDateInfo() {
-        // Today date
-        dateFormat4DB = new SimpleDateFormat("yyMMdd");
-        dbDate = dateFormat4DB.format(date);
-        //Log.d(TAG, "dataFormat : " + dbDate);
-
-        dbReference.child("FoodInfo").child("Uid").child("220527").addValueEventListener(new ValueEventListener() {
+        dbReference.child("FoodInfo").child(uid).child(dbDate).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dInfo = dataSnapshot.getValue(DailyInfo.class);
+                if(dataSnapshot.getValue(DailyInfo.class) != null){
+                    dInfo = dataSnapshot.getValue(DailyInfo.class);
 
-                // Get DailyInfo
-                dMyCal = dInfo.getDailyCalory();
-                dCarb = dInfo.getDailyCarb();
-                dProtein = dInfo.getDailyProtein();
-                dFat = dInfo.getDailyFat();
+                    // Get DailyInfo
+                    dMyCal = dInfo.getDailyCalory();
+                    dCarb = dInfo.getDailyCarb();
+                    dProtein = dInfo.getDailyProtein();
+                    dFat = dInfo.getDailyFat();
 
-                // DailyInfo setText
-                tvMyCal.setText(dMyCal);
-                tvCarb.setText(dCarb + "g");
-                tvProtein.setText(dProtein + "g");
-                tvFat.setText(dFat + "g");
+                    // DailyInfo setText
+                    tvMyCal.setText(dMyCal);
+                    tvCarb.setText(dCarb + "g");
+                    tvProtein.setText(dProtein + "g");
+                    tvFat.setText(dFat + "g");
 
-                // Progressbar setMy
-                pgMyCal.setProgress(Integer.parseInt(dMyCal));
-                pgCarb.setProgress(Integer.parseInt(dCarb));
-                pgProtein.setProgress(Integer.parseInt(dProtein));
-                pgFat.setProgress(Integer.parseInt(dFat));
+                    // Progressbar setMy
+                    pgMyCal.setProgress(Integer.parseInt(dMyCal));
+                    pgCarb.setProgress(Integer.parseInt(dCarb));
+                    pgProtein.setProgress(Integer.parseInt(dProtein));
+                    pgFat.setProgress(Integer.parseInt(dFat));
 
+                }
+                else {
+                    tvMyCal.setText("0");
+                    tvCarb.setText("0g");
+                    tvProtein.setText("0g");
+                    tvFat.setText("0g");
+
+                    // Progressbar setMy
+                    pgMyCal.setProgress(0);
+                    pgCarb.setProgress(0);
+                    pgProtein.setProgress(0);
+                    pgFat.setProgress(0);
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Toast.makeText(getContext(), "Failed to load DB", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -203,40 +221,7 @@ public class FragmentMain extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
-    }
-
-    public void showDateInfo2() {
-        dbReference.child("FoodInfo").child(uid).child(uid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dInfo = dataSnapshot.getValue(DailyInfo.class);
-
-                dRecoCal = dInfo.getRecoCal();
-                dRecoCarb = dInfo.getRecoCarb();
-                dRecoProtein = dInfo.getRecoProtein();
-                dRecoFat = dInfo.getRecoFat();
-                dBasicRate = dInfo.getBasicRate();
-
-                // set 권장, 기초대사량(소모칼로리로 변경 요)
-                tvRecoCal.setText(dRecoCal);
-                tvUseCal.setText(dBasicRate);
-
-                // Progressbar setMax
-                pgMyCal.setMax(Integer.parseInt(dRecoCal));
-                //pgMyCal.set(dRecoCal);
-                pgCarb.setMax(Integer.parseInt((dRecoCarb)));
-                pgProtein.setMax(Integer.parseInt(dRecoProtein));
-                pgFat.setMax(Integer.parseInt(dRecoFat));
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+                Toast.makeText(getContext(), "Failed to load DB", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -246,8 +231,7 @@ public class FragmentMain extends Fragment {
         String[] threeMeal = {"Breakfast","Lunch", "Dinner"};
 
         for(String three : threeMeal ) {
-            //Log.d(TAG, "Three : " + three);
-            dbReference.child("FoodInfo").child("Uid").child("220527").child(three).orderByKey().addValueEventListener(new ValueEventListener() {
+            dbReference.child("FoodInfo").child(uid).child(dbDate).child(three).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -259,9 +243,10 @@ public class FragmentMain extends Fragment {
                     for(DataSnapshot postSnapshot : dataSnapshot.getChildren()){
                         AddFoodInfo item = new AddFoodInfo(getContext());
                         String key = postSnapshot.getKey();
-                        //ArrayList value = new ArrayList((Integer) postSnapshot.getValue());
+
                         HashMap<String, String> value = (HashMap<String, String>) postSnapshot.getValue();
 
+                        // TextView
                         tvItemFoodname = item.findViewById(R.id.TV_itemFoodname);
                         tvItemCal = item.findViewById(R.id.TV_itemCalory);
                         tvItemCarb = item.findViewById(R.id.TV_itemCarb);
@@ -274,17 +259,28 @@ public class FragmentMain extends Fragment {
                         tvItemProtein.setText(value.get("Protein"));
                         tvItemFat.setText(value.get("Fat"));
 
+                        // ImageView
+                        storage.getReferenceFromUrl(storageRef + "FoodInfo/" + uid + "/" + dbDate + "/" + three + "/" + key + ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                ivItemFood = item.findViewById(R.id.IV_foodImg);
+                                Glide.with(getContext()).load(uri).into(ivItemFood);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
                         lLayout.addView(item);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-
+                    Toast.makeText(getContext(), "Failed to load DB", Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
 }
-
-

@@ -64,8 +64,6 @@ public class FragmentSetting extends Fragment {
         dbReference = database.getReference();
         uid = auth.getInstance().getCurrentUser().getUid();
 
-
-
         setNickname();
 
         // 로그아웃 버튼
@@ -83,8 +81,7 @@ public class FragmentSetting extends Fragment {
         fLayout_1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), ModifyMyInfo.class);
-                startActivity(intent);
+                startActivity(new Intent(getActivity(), ModifyMyInfo.class));
             }
         });
 
@@ -134,11 +131,4 @@ public class FragmentSetting extends Fragment {
         startActivity(new Intent(getContext(), LoginActivity.class));
         //mainActivity.finish();
     }
-
-    public void showSettingMenu() {
-        String[] menu = {"개인정보수정", "구글피트니스 연동"};
-
-    }
 }
-
-

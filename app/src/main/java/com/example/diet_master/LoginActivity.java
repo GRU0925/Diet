@@ -70,8 +70,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         currentUser = auth.getCurrentUser();
         if(currentUser != null) {
             finish();
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
         else{
             //Toast.makeText(LoginActivity.this, "회원가입 화면으로 넘어갑니다.", Toast.LENGTH_SHORT).show();
