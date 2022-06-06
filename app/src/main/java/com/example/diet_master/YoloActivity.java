@@ -499,7 +499,7 @@ public class YoloActivity extends AppCompatActivity {
         YOLO();
 
         //메인 화면으로 전환
-        ImageButton btnmanager=(ImageButton)findViewById(R.id.btnmanager);
+        ImageButton btnmanager=(ImageButton)findViewById(R.id.BT_Manager);
         btnmanager.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
