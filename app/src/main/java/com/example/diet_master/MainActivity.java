@@ -14,8 +14,6 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-//import android.widget.Toolbar;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";

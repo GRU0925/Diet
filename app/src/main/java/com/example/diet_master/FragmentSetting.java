@@ -115,7 +115,7 @@ public class FragmentSetting extends Fragment {
                 spannableString.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                 tvNickname.setText(spannableString);
-                tvNickname.setTextSize(16);
+                tvNickname.setTextSize(18);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

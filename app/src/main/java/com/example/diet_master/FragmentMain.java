@@ -135,7 +135,6 @@ public class FragmentMain extends Fragment {
         btnManager.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "=====work");
                 startActivityForResult(new Intent(getContext(), YoloActivity.class),0);
             }
         });

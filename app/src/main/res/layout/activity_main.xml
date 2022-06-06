@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="#FFFFFF"
-        android:elevation="2dp"
+        android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTabTextStyle">
 
@@ -41,7 +41,8 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:textAlignment="center">
+        android:textAlignment="center"
+        app:elevation="12dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
