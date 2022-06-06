@@ -80,7 +80,7 @@ public class FragmentCalender extends Fragment {
         showDate();
 
         uid = auth.getInstance().getUid();
-
+        dbReference = FirebaseDatabase.getInstance().getReference();
 
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener()
         {
@@ -92,13 +92,6 @@ public class FragmentCalender extends Fragment {
             }
         });
 
-        dbReference = FirebaseDatabase.getInstance().getReference();
-
-
-        //lThreemeal = rootView.findViewById(R.id.Linear_root);
-
-
-        showDateInfo();
 
 
         return rootView;
@@ -112,26 +105,6 @@ public class FragmentCalender extends Fragment {
     }
 
 
-    // DailyInfo(일일섭취 칼로리, 3대영양소 표시)
-    public void showDateInfo() {
-        // Today date
-        dateFormat4DB = new SimpleDateFormat("yyMMdd");
-        dbDate = dateFormat4DB.format(date);
-        Log.d(TAG, "dataFormat : " + dbDate);
-
-        dbReference.child("FoodInfo").child(uid).child(dbDate).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dInfo = dataSnapshot.getValue(DailyInfo.class);
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
 
     public void addFoodInfo() {
 

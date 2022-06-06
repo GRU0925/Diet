@@ -1,8 +1,8 @@
 package com.example.diet_master;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,13 +16,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -34,11 +31,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 public class FragmentMain extends Fragment {
 
@@ -80,10 +74,16 @@ public class FragmentMain extends Fragment {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "======= onAttach");
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "======= onCreate");
     }
 
     @Override
@@ -91,6 +91,7 @@ public class FragmentMain extends Fragment {
 
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        Log.d(TAG, "======= onCreateView");
 
         // DailyInfo
         tvMyCal = rootView.findViewById(R.id.TV_myCal);
@@ -134,6 +135,13 @@ public class FragmentMain extends Fragment {
         return rootView;
     }
 
+    public void FragmentMain() {}
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG, "======= Detach");
+    }
 
     // Date 표시
     public void showDate() {

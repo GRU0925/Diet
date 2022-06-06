@@ -41,10 +41,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Fragment
+        manager = getSupportFragmentManager();
+
         fragmentMain = new FragmentMain();
         fragmentCalender = new FragmentCalender();
         fragmentTip = new FragmentTip();
         fragmentSetting = new FragmentSetting();
+
+        manager.beginTransaction().replace(R.id.fmLayout, fragmentMain).commit();
 
         // Toolbar
         toolbar = (Toolbar)findViewById(R.id.toolbar);
@@ -98,28 +102,28 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void callFragmentMain() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fmLayout, fragmentMain).commit();
+        manager.beginTransaction().replace(R.id.fmLayout, fragmentMain).commit();
         btnmanager.setVisibility(View.VISIBLE);
         toolbar.setVisibility(View.VISIBLE);
         tvTitle.setText("일일 정보");
     }
 
     public void callFragmentCalender() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fmLayout, fragmentCalender).commit();
+        manager.beginTransaction().replace(R.id.fmLayout, fragmentCalender).commit();
         btnmanager.setVisibility(View.INVISIBLE);
         toolbar.setVisibility(View.VISIBLE);
         tvTitle.setText("캘린더");
     }
 
     public void callFragmentTip() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fmLayout, fragmentTip).commit();
+        manager.beginTransaction().replace(R.id.fmLayout, fragmentTip).commit();
         btnmanager.setVisibility(View.INVISIBLE);
         toolbar.setVisibility(View.VISIBLE);
         tvTitle.setText("팁");
     }
 
     public void callFragmentSetting() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fmLayout, fragmentSetting).commit();
+        manager.beginTransaction().replace(R.id.fmLayout, fragmentSetting).commit();
         btnmanager.setVisibility(View.INVISIBLE);
         toolbar.setVisibility(View.GONE);
     }

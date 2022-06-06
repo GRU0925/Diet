@@ -35,13 +35,6 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <fragment
-            android:id="@+id/fragment"
-            android:name="com.example.diet_master.FragmentMain"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
         <ImageButton
             android:id="@+id/btnmanager"
             android:layout_width="wrap_content"
@@ -52,14 +45,6 @@
             android:background="@android:color/transparent"
             android:padding="7dp"
             android:src="@drawable/camera" />
-
-        <!--        <ImageButton
-                    android:id="@+id/btnmanager"
-                    android:layout_width="59dp"
-                    android:layout_height="59dp"
-                    android:layout_gravity="bottom|right"
-                    android:src="@drawable/plus" />
-        -->
     </FrameLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

@@ -12,9 +12,9 @@
 
         <CalendarView
             android:id="@+id/calendarView"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
         <ScrollView
             android:id="@+id/scrollView2"
@@ -30,6 +30,7 @@
                     android:id="@+id/TV_Date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
                     android:text="TextView" />
 
                 <LinearLayout
