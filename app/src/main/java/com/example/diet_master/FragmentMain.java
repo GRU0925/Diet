@@ -1,12 +1,15 @@
 package com.example.diet_master;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -42,7 +45,8 @@ public class FragmentMain extends Fragment {
     // rootView
     View rootView;
 
-    //
+    //View
+    ImageButton btnManager;
     private long backpressedTime = 0;
 
     // Date
@@ -77,21 +81,16 @@ public class FragmentMain extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        Log.d(TAG, "======= onAttach");
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "======= onCreate");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-        Log.d(TAG, "======= onCreateView");
 
         // DailyInfo
         tvMyCal = rootView.findViewById(R.id.TV_myCal);
@@ -104,7 +103,6 @@ public class FragmentMain extends Fragment {
         tvRecoCarb = rootView.findViewById(R.id.TV_recoCarb);
         tvRecoProtein = rootView.findViewById(R.id.TV_recoProtein);
         tvRecoFat = rootView.findViewById(R.id.TV_recoFat);
-
 
         pgMyCal = rootView.findViewById(R.id.PG_myCal);
         pgCarb = rootView.findViewById(R.id.PG_carb);
@@ -132,6 +130,16 @@ public class FragmentMain extends Fragment {
         addFoodInfo();
         showDateInfo();
 
+        // 음식 추가 페이지로 넘어가기
+        btnManager = rootView.findViewById(R.id.BT_Manager);
+        btnManager.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "=====work");
+                startActivityForResult(new Intent(getContext(), YoloActivity.class),0);
+            }
+        });
+
         return rootView;
     }
 
@@ -140,7 +148,6 @@ public class FragmentMain extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.d(TAG, "======= Detach");
     }
 
     // Date 표시

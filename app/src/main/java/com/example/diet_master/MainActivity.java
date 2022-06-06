@@ -2,6 +2,7 @@ package com.example.diet_master;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -17,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
     // Fragment
     FragmentMain fragmentMain;
     FragmentCalender fragmentCalender;
@@ -25,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     FragmentManager manager;
 
     // View
-    ImageButton btnMain, btnCalender, btnTip, btnSetting, btnmanager;
+    ImageButton btnMain, btnCalender, btnTip, btnSetting;
     TextView tvTitle;
     Toolbar toolbar;
 
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         btnTip = (ImageButton)findViewById(R.id.BT_tip);
         btnSetting = (ImageButton)findViewById(R.id.BT_setting);
 
+
         // TextView
         tvTitle = (TextView)findViewById(R.id.TV_title);
         tvTitle.setText("일일 정보");
@@ -89,42 +93,30 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) { callFragmentSetting(); }
         });
 
-        // 음식 추가 페이지로 넘어가기
-        btnmanager = (ImageButton) findViewById(R.id.btnmanager);
-        btnmanager.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), YoloActivity.class);
-                startActivityForResult(intent,0);
-            }
-        });
+
     }
 
 
     public void callFragmentMain() {
         manager.beginTransaction().replace(R.id.fmLayout, fragmentMain).commit();
-        btnmanager.setVisibility(View.VISIBLE);
         toolbar.setVisibility(View.VISIBLE);
         tvTitle.setText("일일 정보");
     }
 
     public void callFragmentCalender() {
         manager.beginTransaction().replace(R.id.fmLayout, fragmentCalender).commit();
-        btnmanager.setVisibility(View.INVISIBLE);
         toolbar.setVisibility(View.VISIBLE);
         tvTitle.setText("캘린더");
     }
 
     public void callFragmentTip() {
         manager.beginTransaction().replace(R.id.fmLayout, fragmentTip).commit();
-        btnmanager.setVisibility(View.INVISIBLE);
         toolbar.setVisibility(View.VISIBLE);
         tvTitle.setText("팁");
     }
 
     public void callFragmentSetting() {
         manager.beginTransaction().replace(R.id.fmLayout, fragmentSetting).commit();
-        btnmanager.setVisibility(View.INVISIBLE);
         toolbar.setVisibility(View.GONE);
     }
 
