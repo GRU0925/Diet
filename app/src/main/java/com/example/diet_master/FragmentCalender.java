@@ -37,6 +37,8 @@ public class FragmentCalender extends Fragment {
     Date date;
     SimpleDateFormat dateFormat;
     String sDate;
+    int Uyear, Umonth, Uday, TotalDate;
+    String Udate;
 
     // Calory
     TextView tvItemFoodname, tvItemCal, tvItemCarb, tvItemProtein, tvItemFat, tvItemThreemeal;
@@ -74,7 +76,6 @@ public class FragmentCalender extends Fragment {
         calendarView = rootView.findViewById(R.id.calendarView);
         TV_Date = rootView.findViewById(R.id.TV_Date);
 
-
         long curTime = System.currentTimeMillis();
         date = new Date(curTime);
         showDate();
@@ -87,7 +88,13 @@ public class FragmentCalender extends Fragment {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth)
             {
-                TV_Date.setText(String.format("%d"+ "/" + "%d"+ "/"+ "%d", year, month + 1, dayOfMonth));
+                TV_Date.setText(String.format("%d"+ "/" + "%d"+ "/"+ "%d", year, month + 1, dayOfMonth)); //yymmdd
+                Uyear = (year - 2000) *10000;
+                Umonth = (month + 1)*100;
+                Uday = dayOfMonth;
+                TotalDate = Uyear+Umonth+Uday;
+                Udate = Integer.toString(TotalDate);
+
                 addFoodInfo();
             }
         });
@@ -113,7 +120,7 @@ public class FragmentCalender extends Fragment {
 
 
         for (String three : threeMeal) {
-            dbReference.child("FoodInfo").child(uid).child(dbDate).child(three).orderByKey().addValueEventListener(new ValueEventListener() {
+            dbReference.child("FoodInfo").child(uid).child(Udate).child(three).orderByKey().addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     AddThreeMeal itemThreemeal = new AddThreeMeal(getContext());
