@@ -158,60 +158,6 @@ public class FragmentMain extends Fragment {
 
     // DailyInfo(일일섭취 칼로리, 3대영양소 표시)
     public void showDateInfo() {
-        dbReference.child("FoodInfo").child(uid).child(dbDate).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
-            @Override
-            public void onSuccess(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue(DailyInfo.class) != null){
-                    dInfo = dataSnapshot.getValue(DailyInfo.class);
-
-                    // Get DailyInfo
-                    dMyCal = dInfo.getDailyCalory();
-                    dCarb = dInfo.getDailyCarb();
-                    dProtein = dInfo.getDailyProtein();
-                    dFat = dInfo.getDailyFat();
-
-                    // DailyInfo setText
-                    tvMyCal.setText(dMyCal);
-                    tvCarb.setText(dCarb + "g");
-                    tvProtein.setText(dProtein + "g");
-                    tvFat.setText(dFat + "g");
-
-                    //null값
-                    // Progressbar setMy
-                    pgMyCal.setProgress(Integer.parseInt(dMyCal));
-                    pgCarb.setProgress(Integer.parseInt(dCarb));
-                    pgProtein.setProgress(Integer.parseInt(dProtein));
-                    pgFat.setProgress(Integer.parseInt(dFat));
-
-                }
-                else {
-/*
-                    HashMap result = new HashMap<>();
-                    result.put("DailyCalory", 0);
-                    result.put("DailyCarb", 0);
-                    result.put("DailyProtein", 0);
-                    result.put("DailyFat", 0);
-                    dbReference.child("FoodInfo").child(uid).child(dbDate).setValue(result);
-*/
-                    tvMyCal.setText("0");
-                    tvCarb.setText("0g");
-                    tvProtein.setText("0g");
-                    tvFat.setText("0g");
-
-                    // Progressbar setMy
-                    pgMyCal.setProgress(0);
-                    pgCarb.setProgress(0);
-                    pgProtein.setProgress(0);
-                    pgFat.setProgress(0);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(), "Failed to load DB", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         dbReference.child("UserInfo").child(uid).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
@@ -248,6 +194,55 @@ public class FragmentMain extends Fragment {
 
             }
         });
+
+        dbReference.child("FoodInfo").child(uid).child(dbDate).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue(DailyInfo.class) != null){
+                    dInfo = dataSnapshot.getValue(DailyInfo.class);
+
+                    // Get DailyInfo
+                    dMyCal = dInfo.getDailyCalory();
+                    dCarb = dInfo.getDailyCarb();
+                    dProtein = dInfo.getDailyProtein();
+                    dFat = dInfo.getDailyFat();
+
+                    // DailyInfo setText
+                    tvMyCal.setText(dMyCal);
+                    tvCarb.setText(dCarb + "g");
+                    tvProtein.setText(dProtein + "g");
+                    tvFat.setText(dFat + "g");
+
+                    //null값
+                    // Progressbar setMy
+                    pgMyCal.setProgress(Integer.parseInt(dMyCal));
+                    pgCarb.setProgress(Integer.parseInt(dCarb));
+                    pgProtein.setProgress(Integer.parseInt(dProtein));
+                    pgFat.setProgress(Integer.parseInt(dFat));
+
+                }
+                else {
+
+                    tvMyCal.setText("0");
+                    tvCarb.setText("0g");
+                    tvProtein.setText("0g");
+                    tvFat.setText("0g");
+
+                    // Progressbar setMy
+                    pgMyCal.setProgress(0);
+                    pgCarb.setProgress(0);
+                    pgProtein.setProgress(0);
+                    pgFat.setProgress(0);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(), "Failed to load DB", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
     }
 
     public void addFoodInfo() {

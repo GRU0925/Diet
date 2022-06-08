@@ -1,12 +1,14 @@
 package com.example.diet_master;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,6 +40,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
@@ -56,6 +62,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -91,9 +98,7 @@ public class YoloActivity extends AppCompatActivity {
     FirebaseFirestore dbStore = FirebaseFirestore.getInstance();
 
     // view
-    LinearLayout linearLayoutYolo;
-    TextView tvYoloCalory, tvYoloCarb, tvYoloProtein, tvYoloFat, tvYoloName;
-    ImageView yoloImage;
+    TextView tvYoloCalory, tvYoloCarb, tvYoloProtein, tvYoloFat;
     Button btAddFood;
 
     // Spinner
@@ -126,6 +131,10 @@ public class YoloActivity extends AppCompatActivity {
     // ThreeMeal
     String threeMeal;
 
+    // Image
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReference();
+    Bitmap bitmap;
 
     //AddYoloFood addYoloFood = new AddYoloFood(getApplicationContext());
 
@@ -566,12 +575,10 @@ public class YoloActivity extends AppCompatActivity {
 
 
         // View
-        tvYoloName = (TextView)findViewById(R.id.TV_yoloFoodname);
         tvYoloCalory = (TextView)findViewById(R.id.TV_yoloCalory);
         tvYoloCarb = (TextView)findViewById(R.id.TV_yoloCarb);
         tvYoloProtein = (TextView)findViewById(R.id.TV_yoloProtein);
         tvYoloFat = (TextView)findViewById(R.id.TV_yoloFat);
-        yoloImage = (ImageView)findViewById(R.id.IV_yoloImg);
         btAddFood = (Button) findViewById(R.id.btn_addFood);
 
         currentUser = auth.getInstance().getCurrentUser();
@@ -608,18 +615,6 @@ public class YoloActivity extends AppCompatActivity {
         YOLO();
 
         db = dbReference.child("FoodInfo").child(uid).child(dbDate);
-
-
-        //메인 화면으로 전환
-        ImageButton btnmanager=(ImageButton)findViewById(R.id.BT_Manager);
-        btnmanager.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent outIntent=new Intent(getApplicationContext(), MainActivity.class);
-                setResult(RESULT_OK,outIntent);
-                finish();
-            }
-        });
 
 
         //카메라 사진 촬영 소스
@@ -664,13 +659,15 @@ public class YoloActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(foodName != null) {
                     addFoodDB();
+                    /*
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    finish();
-                    startActivity(new Intent(YoloActivity.this, MainActivity.class));
+
+                     */
+
                 }
                 else {
                     Toast.makeText(YoloActivity.this, "사진을 선택해주세요.", Toast.LENGTH_SHORT).show();
@@ -725,7 +722,7 @@ public class YoloActivity extends AppCompatActivity {
         switch (requestCode) {
             case TAKE_PICTURE:
                 if (resultCode == RESULT_OK && intent.hasExtra("data")) {
-                    Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
+                    bitmap = (Bitmap) intent.getExtras().get("data");
                     if (bitmap != null) {
                         //iv_photo.setImageBitmap(bitmap);
                         detect_food(bitmap);
@@ -738,7 +735,7 @@ public class YoloActivity extends AppCompatActivity {
                     try {
                         // 선택한 이미지에서 비트맵 생성
                         InputStream in = getContentResolver().openInputStream(intent.getData());
-                        Bitmap bitmap = BitmapFactory.decodeStream(in);
+                        bitmap = BitmapFactory.decodeStream(in);
                         in.close();
                         detect_food(bitmap);
 
@@ -751,7 +748,7 @@ public class YoloActivity extends AppCompatActivity {
         }
     }
 
-
+    //
     public void getFoodData() {
         DocumentReference docRef = dbStore.collection("FOOD").document(foodName);
 
@@ -759,19 +756,15 @@ public class YoloActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    //문서의 데이터를 담을 DocumentSnapshot 에 작업의 결과를 담는다.
                     DocumentSnapshot document = task.getResult();
 
-
                     Map<String, Object> storeInfo = (Map<String, Object>) document.getData();
-                    Log.d(TAG, "==============================store Info = " + storeInfo);
 
                     calory = Double.valueOf(String.valueOf(storeInfo.get("칼로리")));
                     carb = Double.valueOf(String.valueOf(storeInfo.get("탄수화물")));
                     protein = Double.valueOf(String.valueOf(storeInfo.get("단백질")));
                     fat = Double.valueOf(String.valueOf(storeInfo.get("지방")));
 
-                    Log.d(TAG, "===================" + calory + "\n" + carb + "\n" + protein + "\n" + fat);
 
                     yoloAmount.setSelection(3);
                     sCalory = String.valueOf((int)(calory * calAmount));
@@ -779,7 +772,6 @@ public class YoloActivity extends AppCompatActivity {
                     sProtein = String.valueOf((int)(protein * calAmount));
                     sFat = String.valueOf((int)(fat * calAmount));
 
-                    tvYoloName.setText(foodName);
                     tvYoloCalory.setText(sCalory+ " Kcal");
                     tvYoloCarb.setText(sCarb + "g");
                     tvYoloProtein.setText(sProtein+ "g");
@@ -833,7 +825,6 @@ public class YoloActivity extends AppCompatActivity {
                 sProtein = String.valueOf((int)(protein * calAmount));
                 sFat = String.valueOf((int)(fat * calAmount));
 
-                tvYoloName.setText(foodName);
                 tvYoloCalory.setText(sCalory+ " Kcal");
                 tvYoloCarb.setText(sCarb + "g");
                 tvYoloProtein.setText(sProtein+ "g");
@@ -902,6 +893,39 @@ public class YoloActivity extends AppCompatActivity {
         result.put("Fat", sFat);
 
         db.child(threeMeal).child(foodName).setValue(result);
+
+
+        ByteArrayOutputStream baOutStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baOutStream);
+        byte[] data = baOutStream.toByteArray();
+
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("업로드중...");
+        progressDialog.show();
+
+        StorageReference stRef = storage.getReferenceFromUrl(storageRef + "FoodInfo/" + uid + "/" + dbDate + "/" + threeMeal +"/" + foodName + ".jpg");
+        UploadTask uploadTask = stRef.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(YoloActivity.this, "사진 업로드 실패", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(YoloActivity.this, "사진 업로드 성공", Toast.LENGTH_SHORT).show();
+                finish();
+                startActivity(new Intent(YoloActivity.this, MainActivity.class));
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+
+                double progress = (100 * snapshot.getBytesTransferred()) /  snapshot.getTotalByteCount();
+                //dialog에 진행률을 퍼센트로 출력해 준다
+                progressDialog.setMessage("Uploaded " + ((int) progress) + "% ...");
+            }
+        });
     }
 }
 

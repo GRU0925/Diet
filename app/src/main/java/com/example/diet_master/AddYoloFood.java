@@ -10,7 +10,6 @@ import android.widget.TextView;
 public class AddYoloFood extends LinearLayout {
 
     TextView calory, carb, protein, fat, tvYoloCalory, tvYoloCarb, tvYoloProtein, tvYoloFat, tvYoloName;
-    ImageView yoloImage;
     Spinner yoloAmount;
 
     public AddYoloFood(Context context) {
@@ -29,7 +28,6 @@ public class AddYoloFood extends LinearLayout {
         protein = (TextView)findViewById(R.id.TV_protein);
         fat = (TextView)findViewById(R.id.TV_fat);
 
-        tvYoloName = (TextView)findViewById(R.id.TV_yoloFoodname);
         tvYoloCalory = (TextView)findViewById(R.id.TV_yoloCalory);
         tvYoloCarb = (TextView)findViewById(R.id.TV_yoloCarb);
         tvYoloProtein = (TextView)findViewById(R.id.TV_yoloProtein);
@@ -37,7 +35,6 @@ public class AddYoloFood extends LinearLayout {
 
         yoloAmount = (Spinner)findViewById(R.id.SP_yoloAmount);
 
-        yoloImage = (ImageView)findViewById(R.id.IV_yoloImg);
 
         calory.setText("칼로리");
         carb.setText("탄수화물");
