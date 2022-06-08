@@ -26,8 +26,8 @@ public class SignUp extends AppCompatActivity {
 
     //
     private EditText etNick, etAge, etHeight, etWeight; // 사용자 정보 입력 필드
-    private RadioGroup radioGroup;
-    private RadioButton rbMale, rbFemale;
+    private RadioGroup radioGroup; 
+    private RadioButton rbMale, rbFemale; // 라디오 그룹 버튼 남자, 여자
     private Spinner spIndex;
     private Button btSignup; //회원가입 버튼
 
@@ -40,7 +40,7 @@ public class SignUp extends AppCompatActivity {
 
     // String
     String stNick, stAge, stHeight, stWeight, stSex, stActIndex;
-    String[] spItems = {"비활동적", "저활동적", "활동적", "매우 활동적"};
+    String[] spItems = {"비활동적", "저활동적", "활동적", "매우 활동적"}; //활동지수
     String recoCal, recoCarb, recoProtein, recoFat, basicRate;
     //BasicRate = 기초대사량
 
@@ -68,11 +68,11 @@ public class SignUp extends AppCompatActivity {
         uid = auth.getInstance().getUid();
 
         if(currentUser != null) {
-            //Toast.makeText(SignUp.this, "유저o", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(SignUp.this, "사용자가 있을경우", Toast.LENGTH_SHORT).show();
             //Log.d(TAG, "uid---------------------------" + auth.getInstance().getUid());
         }
         else{
-            //Toast.makeText(SignUp.this, "유저x", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(SignUp.this, "사용자가 없을경우", Toast.LENGTH_SHORT).show();
             //Log.d(TAG, "uid---------------------------" + auth.getInstance().getUid());
         }
 
@@ -97,6 +97,7 @@ public class SignUp extends AppCompatActivity {
 
         if(stNick.equals("") || stAge.equals("") || stHeight.equals("") || stWeight.equals("") || (rbMale.isChecked() == false && rbFemale.isChecked() == false)){
             Toast.makeText(SignUp.this, "빈칸을 다 채워 주세요!", Toast.LENGTH_SHORT).show();
+            //회원정보가 모두 채워지지 않으면 회원가입 X
         }
         else {
             calculateRecoCal();
@@ -150,7 +151,7 @@ public class SignUp extends AppCompatActivity {
         spIndex.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // 남: 1.0, 1.1, 1.25, 1.48 / 여:1.0, 1.2, 1.27, 1.45
+                // 남자 활동지수 계산: 1.0, 1.1, 1.25, 1.48 / 여자 활동지수 계산:1.0, 1.2, 1.27, 1.45
                 switch (spItems[position]) {
                     case "비활동적":
                         stActIndex = "1.0";
@@ -174,7 +175,7 @@ public class SignUp extends AppCompatActivity {
         });
     }
 
-    /// 권장칼로리 계산--------------------------------------------------------------------------------
+    /// 2020 보건복지부 논문 권장칼로리 계산방법--------------------------------------------------------------------------------
     public void calculateRecoCal() {
         double height = Double.parseDouble(stHeight) / 100;
 
@@ -199,7 +200,7 @@ public class SignUp extends AppCompatActivity {
         }
     }
 
-    // 단백질, 지방 계산-------------------------------------------------------------------------------
+    // 2020 보건복지부 논문 단백질, 지방 계산방법-------------------------------------------------------------------------------
     public void selectRecoProtainNfat() {
         // 단백질 30% 지방 20%
         // 단백질 x 0.6 = 지방
@@ -262,7 +263,7 @@ public class SignUp extends AppCompatActivity {
         }
     }
 
-    // 기초대사량--------------------------------------------------------------------------------------
+    // 2020 보건복지부 논문 기초대사량 계산 방법--------------------------------------------------------------------------------------
     public void calculateBasicRate() {
         double height = Double.parseDouble(stHeight) / 100;
 

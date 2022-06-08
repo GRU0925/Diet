@@ -56,7 +56,7 @@ public class FragmentTip extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_tip, container, false);
 
         linearLayout = rootView.findViewById(R.id.Linear_root_thumbnail);
-        showTipThumb();
+        //showTipThumb();
 
         //ivItemTipThumb = addThumb.findViewById(R.id.IV_thumbnail);
 
@@ -71,7 +71,9 @@ public class FragmentTip extends Fragment {
         return rootView;
     }
 
-    
+}
+
+    /*
     // 썸네일 표시
     public void showTipThumb() {
         storageRef.child("Tip").listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
@@ -98,3 +100,4 @@ public class FragmentTip extends Fragment {
         });
     }
 }
+*/

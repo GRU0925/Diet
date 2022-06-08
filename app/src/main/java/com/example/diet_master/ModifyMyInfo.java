@@ -38,8 +38,8 @@ public class ModifyMyInfo extends AppCompatActivity {
     String uid;
 
     // String
-    String stNick, stAge, stHeight, stWeight, stSex, stActIndex;
-    String[] spItems = {"비활동적", "저활동적", "활동적", "매우 활동적"};
+    String stNick, stAge, stHeight, stWeight, stSex, stActIndex; //회원가입 정보
+    String[] spItems = {"비활동적", "저활동적", "활동적", "매우 활동적"}; //활동지수
     String recoCal, recoCarb, recoProtein, recoFat, basicRate;
     //BasicRate = 기초대사량
 
@@ -91,7 +91,7 @@ public class ModifyMyInfo extends AppCompatActivity {
         calculateBasicRate();
 
         if(stNick.equals("") || stAge.equals("") || stHeight.equals("") || stWeight.equals("") || (rbMale.isChecked() == false && rbFemale.isChecked() == false)){
-            //
+            //빈칸이 있을 경우 회원가입X
             Toast.makeText(ModifyMyInfo.this, "빈칸을 다 채워 주세요!", Toast.LENGTH_SHORT).show();
         }
         else {
@@ -169,7 +169,7 @@ public class ModifyMyInfo extends AppCompatActivity {
         });
     }
 
-    /// 권장칼로리 계산--------------------------------------------------------------------------------
+    // 2020 보건복지부 논문 권장칼로리 계산방법--------------------------------------------------------------------------------
     public void calculateRecoCal() {
         double height = Double.parseDouble(stHeight) / 100;
 
@@ -193,7 +193,8 @@ public class ModifyMyInfo extends AppCompatActivity {
             }
         }
     }
-    // 단백질, 지방 계산-------------------------------------------------------------------------------
+
+    // 2020 보건복지부 논문 단백질, 지방 계산방법-------------------------------------------------------------------------------
     public void selectRecoProtainNfat() {
         // 단백질 30% 지방 20%
         // 단백질 x 0.6 = 지방
@@ -256,7 +257,7 @@ public class ModifyMyInfo extends AppCompatActivity {
         }
     }
 
-    // 기초대사량--------------------------------------------------------------------------------------
+    // 2020 보건복지부 논문 기초대사량 계산 방법--------------------------------------------------------------------------------------
     public void calculateBasicRate() {
         double height = Double.parseDouble(stHeight) / 100;
 

@@ -103,9 +103,9 @@ public class YoloActivity extends AppCompatActivity {
 
     // Spinner
     Spinner yoloAmount;
-    String[] spItems = {"1/4 인분", "1/2 인분", "3/4 인분", "1 인분", "2 인분", "3 인분"};
+    String[] spItems = {"1/4 인분", "1/2 인분", "3/4 인분", "1 인분", "2 인분", "3 인분"}; //식사량 선택
 
-    String[] spmeal = {"아침", "점심", "저녁"};
+    String[] spmeal = {"아침", "점심", "저녁"}; //식사 시간 선택
     ArrayAdapter<String> adapter;
     ArrayAdapter<String> adapterMeal;
     double calAmount;
@@ -131,7 +131,7 @@ public class YoloActivity extends AppCompatActivity {
     // ThreeMeal
     String threeMeal;
 
-    // Image
+    // Image 파이어베이스 업로드
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
     Bitmap bitmap;
@@ -165,8 +165,8 @@ public class YoloActivity extends AppCompatActivity {
             startYolo = true;
             if (firstTimeYolo == false) {
                 firstTimeYolo = true;
-                String yoloCfg = getPath("yolov3-tiny.cfg", this);
-                String yoloWeights = getPath("yolov3-tiny.weights", this);
+                String yoloCfg = getPath("yolov3-tiny.cfg", this); //assets의 파일 정보를 받아와 패치
+                String yoloWeights = getPath("yolov3-tiny.weights", this); // assets의 파일 정보를 받아와 패치
 
                 Yolov3 = Dnn.readNetFromDarknet(yoloCfg, yoloWeights);
             }
@@ -182,17 +182,16 @@ public class YoloActivity extends AppCompatActivity {
         Mat frame = new Mat();
         Utils.bitmapToMat(bitmap, frame);
 
-        //Imgproc을 이용해 이미지 프로세싱을 한다.
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGBA2RGB);//rgba 체계를 rgb로 변경
-        //Imgproc.Canny(frame, frame, 100, 200);
-        //Mat gray=Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY)
+        //Imgproc을 이용해 이미지 프로세싱
+        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGBA2RGB);//rgba 체계를 rgb로 변경해야 흑백이아닌 컬러 화면으로 찍힘
+
         Mat imageBlob = Dnn.blobFromImage(frame, 0.00392, new Size(416, 416), new Scalar(0, 0, 0),false, false);
         //뉴런 네트워크에 이미지 넣기
 
         Yolov3.setInput(imageBlob);
 
         //cfg 파일에서 yolo layer number을 확인하여 이를 순전파에 넣어준다.
-        //yolv3-tiny는 yolo layer가 2개라서 initialCapacity를 2로 준다.
+        //yolv3-tiny는 yolo layer가 2개라서 initialCapacity를 2로 준다. yolov3와 yolov4는 layer가 4개
         List<Mat> result = new ArrayList<Mat>(2);
 
         List<String> outBlobNames = new ArrayList<>();
@@ -279,7 +278,8 @@ public class YoloActivity extends AppCompatActivity {
 
                 float conf = confs.get(idx);
 
-                List<String> cocoNames = Arrays.asList("rice",
+                List<String> cocoNames = Arrays.asList(//욜로에 학습한 음식 클래스명
+                        "rice",
                         "eels on rice",
                         "pilaf",
                         "chicken-'n'-egg on rice",
@@ -536,6 +536,7 @@ public class YoloActivity extends AppCompatActivity {
                         "eight treasure rice",
                         "hot & sour soup");
 
+                //해당 클래스의 한국 음식명
                 List<String> cocoNamesKR = Arrays.asList("쌀밥", "장어덮밥", "필라프", "치킨마요덮밥", "돈가스덮밥", "소고기카레", "초밥", "치킨라이스", "볶음밥", "튀김덮밥", "비빔밥","토스트","크로와상","롤빵","건포도빵","칩버티",
                         "햄버거","피자","샌드위치","우동","튀김우동","소바","라멘","고기국수","텐신국수","볶음국수","스파게티","팬케이크","문어빵","그라탕","야채볶음","크로켓","가지구이","시금치볶음","야채튀김","된장국","포타주","소세지",
                         "오뎅","오믈렛","두부튀김","만두","스튜","생선조림","생선까스","연어구이","연어스테이크","생선회","꽁치구이","스키야키","탕수육","생선구이","계란찜","튀김","치킨","소고기돈가스","난반즈케","고등어조림","소고기감자조림",
@@ -551,8 +552,8 @@ public class YoloActivity extends AppCompatActivity {
 
                 Imgproc.putText(frame, cocoNames.get(idGuy) + " " + intConf + "%", box.tl(), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 0), 2);
 
-                addIngredients.setText(cocoNamesKR.get(idGuy));
-                foodName = addIngredients.getText().toString();
+                addIngredients.setText(cocoNamesKR.get(idGuy)); // 해당 음식의 이미지 클래스가 인식되면 음식을 한국명으로 설정
+                foodName = addIngredients.getText().toString(); // 음식의 이름을 addIngredients 처리
 
                 Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(255, 0, 0), 2);
 
@@ -649,10 +650,10 @@ public class YoloActivity extends AppCompatActivity {
             }
         });
 
-        //음식 이름 가져오기
+        //음식의 이름을 가져와 Textview에 출력
         addIngredients=(TextView)findViewById(R.id.addIngredients);
 
-        //음식 추가
+        //음식 정보 추가
         btn_addFood= (Button)findViewById(R.id.btn_addFood);
         btn_addFood.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -748,7 +749,7 @@ public class YoloActivity extends AppCompatActivity {
         }
     }
 
-    //
+    //객체검출을 통한 음식의 이름과 DB store에 저장된 음식의 이름이 일치하면 해당 음식의 영양성분 정보를 가져옴
     public void getFoodData() {
         DocumentReference docRef = dbStore.collection("FOOD").document(foodName);
 
@@ -819,7 +820,7 @@ public class YoloActivity extends AppCompatActivity {
                         break;
                 }
 
-                // 인분수 계산
+                // 음식 인분수 계산
                 sCalory = String.valueOf((int)(calory * calAmount));
                 sCarb = String.valueOf((int)(carb * calAmount));
                 sProtein = String.valueOf((int)(protein * calAmount));
@@ -837,6 +838,7 @@ public class YoloActivity extends AppCompatActivity {
         });
     }
 
+    //DB에 업로드 및 업데이트
     public void addFoodDB() {
 
         db.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
@@ -894,15 +896,16 @@ public class YoloActivity extends AppCompatActivity {
 
         db.child(threeMeal).child(foodName).setValue(result);
 
-
+        //DB에 촬영 및 갤러리에서 가져온 사진 정보를 저장
         ByteArrayOutputStream baOutStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baOutStream);
         byte[] data = baOutStream.toByteArray();
-
+        
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("업로드중...");
         progressDialog.show();
 
+        //DB storage의 업로드하는 사진의 저장경로 및 이름 설정
         StorageReference stRef = storage.getReferenceFromUrl(storageRef + "FoodInfo/" + uid + "/" + dbDate + "/" + threeMeal +"/" + foodName + ".jpg");
         UploadTask uploadTask = stRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -920,7 +923,7 @@ public class YoloActivity extends AppCompatActivity {
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
-
+                //음식의 사진과 영양성분이 DB에 업로드 되기전까지 로딩화면 출력
                 double progress = (100 * snapshot.getBytesTransferred()) /  snapshot.getTotalByteCount();
                 //dialog에 진행률을 퍼센트로 출력해 준다
                 progressDialog.setMessage("Uploaded " + ((int) progress) + "% ...");
