@@ -11,16 +11,32 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
@@ -43,8 +59,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class YoloActivity extends AppCompatActivity {
@@ -52,18 +71,58 @@ public class YoloActivity extends AppCompatActivity {
     final private static String TAG = "GILBOMI";
     Button btn_photo, btn_addFood;
     ImageView iv_photo;
-    EditText addIngredients, addIngredients2;
+    TextView addIngredients;
     DatePicker date;
     Spinner addType;
     final static int TAKE_PICTURE = 1;
     String mCurrentPhotoPath;
     final static int REQUEST_TAKE_PHOTO = 1;
     String yolo_name="";
+    private Spinner MealType;
 
     boolean startYolo = false;
     boolean firstTimeYolo = false;
     Net Yolov3;
     private final int GET_GALLERY_IMAGE = 200;
+
+    // FirebaseStore
+    FirebaseFirestore dbStore = FirebaseFirestore.getInstance();
+
+    // view
+    LinearLayout linearLayoutYolo;
+    TextView tvYoloCalory, tvYoloCarb, tvYoloProtein, tvYoloFat, tvYoloName;
+    ImageView yoloImage;
+    Button btAddFood;
+
+    // Spinner
+    Spinner yoloAmount;
+    String[] spItems = {"0.25", "0.5", "0.75", "1", "1.25"};
+
+    String[] spmeal = {"아침", "점심", "저녁"};
+    ArrayAdapter<String> adapter;
+    double calAmount;
+
+    // DB
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private DatabaseReference dbReference;
+    private FirebaseAuth auth;  // firebase auth
+    private FirebaseUser currentUser;  //firebase user
+    String uid;
+
+    // Date
+    Date currentDate;
+    SimpleDateFormat dateFormat;
+    String dbDate;
+
+    // result
+    double calory, carb, protein, fat;
+    String sCalory, sCarb, sProtein, sFat;
+
+    // Date
+
+
+    //AddYoloFood addYoloFood = new AddYoloFood(getApplicationContext());
+
 
     //assets 파일 가져오기
     private static String getPath(String file, Context context) {
@@ -476,12 +535,12 @@ public class YoloActivity extends AppCompatActivity {
                 int intConf = (int) (conf * 100);
 
                 Imgproc.putText(frame, cocoNames.get(idGuy) + " " + intConf + "%", box.tl(), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 0), 2);
-                Imgproc.putText(frame, cocoNames.get(idGuy) + " " + intConf + "%", box.tl(), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 0), 2);
+
                 addIngredients.setText(cocoNamesKR.get(idGuy));
-                addIngredients2.setText(cocoNamesKR.get(idGuy));
 
                 Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(255, 0, 0), 2);
-                Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(255, 0, 0), 2);
+
+                //getFoodData();
             }
 
         }
@@ -491,12 +550,41 @@ public class YoloActivity extends AppCompatActivity {
 
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item);
+        MealType = findViewById(R.id.SP_index);
+        selectmeal();
+
+
+        // View
+        tvYoloName = (TextView)findViewById(R.id.TV_yoloFoodname);
+        tvYoloCalory = (TextView)findViewById(R.id.TV_yoloCalory);
+        tvYoloCarb = (TextView)findViewById(R.id.TV_yoloCarb);
+        tvYoloProtein = (TextView)findViewById(R.id.TV_yoloProtein);
+        tvYoloFat = (TextView)findViewById(R.id.TV_yoloFat);
+        yoloImage = (ImageView)findViewById(R.id.IV_yoloImg);
+        btAddFood = (Button) findViewById(R.id.btn_addFood);
+
+        currentUser = auth.getInstance().getCurrentUser();
+        uid = auth.getInstance().getUid();
+        dbReference = database.getReference();
+
+        // CurrentUser
+        currentUser = auth.getInstance().getCurrentUser();
+        uid = auth.getInstance().getUid();
+        dbReference = database.getReference();
+
+        // addLayout
+        linearLayoutYolo = (LinearLayout)findViewById(R.id.Linear_root);
+
+        // date
+        long curTime = System.currentTimeMillis();
+        currentDate = new Date(curTime);
+        dateFormat = new SimpleDateFormat("yyyy" + "년" + "MM" + "월" + "dd" + "일");
+        dbDate = dateFormat.format(currentDate);
+
 
         //opencv 로드
         boolean load = OpenCVLoader.initDebug();
@@ -519,6 +607,7 @@ public class YoloActivity extends AppCompatActivity {
                 finish();
             }
         });
+
 
         //카메라 사진 촬영 소스
         iv_photo = (ImageView) findViewById(R.id.iv_photo);
@@ -553,10 +642,42 @@ public class YoloActivity extends AppCompatActivity {
         });
 
         //음식 이름 가져오기
-        addIngredients=(EditText)findViewById(R.id.addIngredients);
-        addIngredients2=(EditText)findViewById(R.id.addIngredients);
+        addIngredients=(TextView)findViewById(R.id.addIngredients);
 
+        //음식 추가
+        btn_addFood= (Button)findViewById(R.id.btn_addFood);
+        btn_addFood.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { addFoodDB();
+            }
+        });
     }
+
+    // 식사 타입 선택(spinner)--------------------------------------------------------------------------
+    public void selectmeal() {
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spmeal);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        MealType.setAdapter(adapter);
+        MealType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (spmeal[position]) {
+                    case "아침":
+                        break;
+                    case "점심":
+                        break;
+                    case "저녁":
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
 
 
     // 권한 요청
@@ -600,4 +721,128 @@ public class YoloActivity extends AppCompatActivity {
 
         }
     }
+
+
+    public void getFoodData() {
+        //addIngredients
+        dbStore.collection("FOOD").document(String.valueOf(addIngredients)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    //문서의 데이터를 담을 DocumentSnapshot 에 작업의 결과를 담는다.
+                    DocumentSnapshot document = task.getResult();
+                    HashMap<String, Object> storeInfo = (HashMap<String, Object>) document.getData();
+
+                    //
+                    calory = (double) storeInfo.get("칼로리");
+                    carb = (double) storeInfo.get("탄수화물");
+                    protein = (double) storeInfo.get("단백질");
+                    fat = (double) storeInfo.get("지방");
+
+                    selectAmount();
+
+                    // 인분수 계산
+                    sCalory = String.valueOf(calory * calAmount);
+                    sCarb = String.valueOf(carb * calAmount);
+                    sProtein = String.valueOf(protein * calAmount);
+                    sFat = String.valueOf(fat * calAmount);
+
+                    tvYoloName.setText((CharSequence) addIngredients);
+                    tvYoloCalory.setText(sCalory);
+                    tvYoloCarb.setText(sCarb);
+                    tvYoloProtein.setText(sProtein);
+                    tvYoloFat.setText(sFat);
+
+                } else {
+
+                }
+            }
+        });
+    }
+
+
+    // 음식 인분 수 스피너
+    public void selectAmount() {
+        yoloAmount = (Spinner) findViewById(R.id.SP_yoloAmount);
+
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spItems);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        yoloAmount.setAdapter(adapter);
+        yoloAmount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // "0.25", "0.5", "0.75", "1", "1.25"
+                switch (spItems[position]) {
+                    case "0.25":
+                        calAmount = 0.25;
+                        break;
+                    case "0.5":
+                        calAmount = 0.5;
+                        break;
+                    case "0.75":
+                        calAmount = 0.75;
+                        break;
+                    case "1":
+                        calAmount = 1;
+                        break;
+                    case "1.25":
+                        calAmount = 1.25;
+                        break;
+                    //case "1.5":
+                    //calAmount = 1.5;
+                    //  break;
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    public void addFoodDB() {
+
+        // FoodName - 칼, 3대영양소, 이름
+        HashMap result = new HashMap<>();
+
+        result.put("FoodName", addIngredients);
+        result.put("Calory", sCalory);
+        result.put("Carb", sCarb);
+        result.put("Protein", sProtein);
+        result.put("Fat", sFat);
+
+        DatabaseReference db = dbReference.child("FoodInfo").child(uid).child(dbDate);
+
+        db.child("Breakfast").child(String.valueOf(addIngredients)).setValue(result);
+
+
+        // DailyCalory, DailyCarb, DailyProtein, DailyFat 불러오고 수정 업데이트
+        db.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot postSnapshot : dataSnapshot.getChildren()){
+                    HashMap<String, String> value = (HashMap<String, String>) postSnapshot.getValue();
+
+                    int dCalory = (int) (Double.parseDouble(value.get("DailyCalory")) + calory);
+                    int dCarb = (int) (Double.parseDouble(value.get("DailyCarb")) + carb);
+                    int dProtein = (int) (Double.parseDouble(value.get("DailyProtein")) + protein);
+                    int dFat = (int) (Double.parseDouble(value.get("DailyFat")) + fat);
+
+                    HashMap<String, String> dailyResult = new HashMap<String, String>();
+                    dailyResult.put("DailyCalory", String.valueOf(dCalory));
+                    dailyResult.put("DailyCarb", String.valueOf(dCarb));
+                    dailyResult.put("DailyProtein", String.valueOf(dProtein));
+                    dailyResult.put("DailyFat", String.valueOf(dFat));
+
+                    db.setValue(dailyResult);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 }
+
