@@ -2,6 +2,7 @@ package com.example.diet_master;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,6 +18,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -68,13 +71,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         dbReference = FirebaseDatabase.getInstance().getReference();
 
         currentUser = auth.getCurrentUser();
+
         if(currentUser != null) {
+            Toast.makeText(LoginActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
             finish();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
-        else{
-            //Toast.makeText(LoginActivity.this, "회원가입 화면으로 넘어갑니다.", Toast.LENGTH_SHORT).show();
+        else {
+
         }
+
+
 
         btn_google = findViewById(R.id.btn_google);
         btn_google.setOnClickListener(new View.OnClickListener() { //구글 로그인 버튼을 클릭했을때 수행
@@ -125,15 +132,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     public void findUid() {
         uid = auth.getCurrentUser().getUid();
-
         dbReference.child("UserInfo").child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                UserAccount uAccount = dataSnapshot.getValue(UserAccount.class);
-                String userId = uAccount.getUid();
-
-                // 데이터가 있으면
-                if(uid.equals(userId)) {
+                if(dataSnapshot.getValue(UserAccount.class) != null) {
                     Toast.makeText(LoginActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
                     finish();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -141,7 +143,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 else {
                     Toast.makeText(LoginActivity.this, "회원가입 화면으로 넘어갑니다.", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, SignUp.class));
-
                 }
             }
             @Override

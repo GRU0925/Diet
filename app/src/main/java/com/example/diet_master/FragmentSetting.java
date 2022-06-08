@@ -56,9 +56,9 @@ public class FragmentSetting extends Fragment {
         tvNickname = rootView.findViewById(R.id.TV_nickname);
         btLogout = rootView.findViewById(R.id.BT_logout);
         tvSetMyInfo = rootView.findViewById(R.id.TV_Menu1);
-        tvGoogleFit = rootView.findViewById(R.id.TV_Menu2);
+        //tvGoogleFit = rootView.findViewById(R.id.TV_Menu2);
         fLayout_1 = rootView.findViewById(R.id.fLayout1);
-        fLayout_2 = rootView.findViewById(R.id.fLayout2);
+        //fLayout_2 = rootView.findViewById(R.id.fLayout2);
 
         // db
         dbReference = database.getReference();
@@ -85,6 +85,7 @@ public class FragmentSetting extends Fragment {
             }
         });
 
+        /*
         // 구글 피트니스 연동
         tvGoogleFit.setText("구글 피트니스 연동");
         fLayout_2.setOnClickListener(new View.OnClickListener() {
@@ -93,6 +94,7 @@ public class FragmentSetting extends Fragment {
 
             }
         });
+         */
 
 
         return rootView;
@@ -129,6 +131,5 @@ public class FragmentSetting extends Fragment {
 
         Toast.makeText(getContext(), "...로그아웃...", Toast.LENGTH_SHORT).show();
         startActivity(new Intent(getContext(), LoginActivity.class));
-        //mainActivity.finish();
     }
 }

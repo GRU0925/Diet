@@ -42,13 +42,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Fragment
-        manager = getSupportFragmentManager();
-
         fragmentMain = new FragmentMain();
         fragmentCalender = new FragmentCalender();
         fragmentTip = new FragmentTip();
         fragmentSetting = new FragmentSetting();
-
+        manager = getSupportFragmentManager();
         manager.beginTransaction().replace(R.id.fmLayout, fragmentMain).commit();
 
         // Toolbar
@@ -59,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
         btnCalender = (ImageButton)findViewById(R.id.BT_calender);
         btnTip = (ImageButton)findViewById(R.id.BT_tip);
         btnSetting = (ImageButton)findViewById(R.id.BT_setting);
-
 
         // TextView
         tvTitle = (TextView)findViewById(R.id.TV_title);
@@ -90,11 +87,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) { callFragmentSetting(); }
         });
-
-
     }
 
-
+    // fragment button listener
     public void callFragmentMain() {
         manager.beginTransaction().replace(R.id.fmLayout, fragmentMain).commit();
         toolbar.setVisibility(View.VISIBLE);

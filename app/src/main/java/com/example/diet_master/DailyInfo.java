@@ -12,6 +12,7 @@ public class DailyInfo {
     private String DailyProtein;         // 단백질
     private String DailyFat;             // 지방
 
+
     public String getDailyCalory() {
         return DailyCalory;
     }
@@ -161,13 +162,10 @@ public class DailyInfo {
     public DailyInfo() {}
 
 
-    public DailyInfo(String DailyCalory, String DailyCarb, String DailyProtein, String DailyFat, String BreakfastCalory, String LunchCalory,
+    public DailyInfo(String BreakfastCalory, String LunchCalory,
                      String DinnerCalory, String Calory, String Carb, String Protein, String Fat,
                      String recoCal, String recoCarb, String recoProtein, String recoFat, String basicRate) {
-        this.DailyCalory = DailyCalory;
-        this.DailyCarb = DailyCarb;
-        this.DailyProtein = DailyProtein;
-        this.DailyFat = DailyFat;
+
 
         this.BreakfastCalory = BreakfastCalory;
         this.LunchCalory = LunchCalory;
@@ -185,15 +183,21 @@ public class DailyInfo {
 
     }
 
+    public DailyInfo(String DailyCalory, String DailyCarb, String DailyProtein, String DailyFat) {
+        this.DailyCalory = DailyCalory;
+        this.DailyCarb = DailyCarb;
+        this.DailyProtein = DailyProtein;
+        this.DailyFat = DailyFat;
+    }
+
+
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.get(BreakfastCalory);
-        result.get(LunchCalory);
-        result.get(DinnerCalory);
-        result.get(Calory);
-        result.get(Carb);
-        result.get(Protein);
-        result.get(Fat);
+
+        result.put("DailyCalory", DailyCalory);
+        result.put("DailyCarb", DailyCarb);
+        result.put("DailyProtein", DailyProtein);
+        result.put("DailyFat", DailyFat);
 
         return result;
     }

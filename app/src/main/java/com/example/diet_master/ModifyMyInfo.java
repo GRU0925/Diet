@@ -110,6 +110,11 @@ public class ModifyMyInfo extends AppCompatActivity {
             database.getReference().child("UserInfo").child(uid).child("recoFat").setValue(recoFat);        // 권장 지방
             database.getReference().child("UserInfo").child(uid).child("basicRate").setValue(basicRate);    //기초대사량
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             finish();
         }
     }

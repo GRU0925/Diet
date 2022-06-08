@@ -15,26 +15,27 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -65,10 +66,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class YoloActivity extends AppCompatActivity {
 
-    final private static String TAG = "GILBOMI";
+    final private static String TAG = "YoloActivity";
     Button btn_photo, btn_addFood;
     ImageView iv_photo;
     TextView addIngredients;
@@ -96,10 +98,11 @@ public class YoloActivity extends AppCompatActivity {
 
     // Spinner
     Spinner yoloAmount;
-    String[] spItems = {"0.25", "0.5", "0.75", "1", "1.25"};
+    String[] spItems = {"1/4 인분", "1/2 인분", "3/4 인분", "1 인분", "2 인분", "3 인분"};
 
     String[] spmeal = {"아침", "점심", "저녁"};
     ArrayAdapter<String> adapter;
+    ArrayAdapter<String> adapterMeal;
     double calAmount;
 
     // DB
@@ -108,6 +111,7 @@ public class YoloActivity extends AppCompatActivity {
     private FirebaseAuth auth;  // firebase auth
     private FirebaseUser currentUser;  //firebase user
     String uid;
+    DatabaseReference db;
 
     // Date
     Date currentDate;
@@ -117,8 +121,10 @@ public class YoloActivity extends AppCompatActivity {
     // result
     double calory, carb, protein, fat;
     String sCalory, sCarb, sProtein, sFat;
+    String foodName;
 
-    // Date
+    // ThreeMeal
+    String threeMeal;
 
 
     //AddYoloFood addYoloFood = new AddYoloFood(getApplicationContext());
@@ -524,11 +530,11 @@ public class YoloActivity extends AppCompatActivity {
                 List<String> cocoNamesKR = Arrays.asList("쌀밥", "장어덮밥", "필라프", "치킨마요덮밥", "돈가스덮밥", "소고기카레", "초밥", "치킨라이스", "볶음밥", "튀김덮밥", "비빔밥","토스트","크로와상","롤빵","건포도빵","칩버티",
                         "햄버거","피자","샌드위치","우동","튀김우동","소바","라멘","고기국수","텐신국수","볶음국수","스파게티","팬케이크","문어빵","그라탕","야채볶음","크로켓","가지구이","시금치볶음","야채튀김","된장국","포타주","소세지",
                         "오뎅","오믈렛","두부튀김","만두","스튜","생선조림","생선까스","연어구이","연어스테이크","생선회","꽁치구이","스키야키","탕수육","생선구이","계란찜","튀김","치킨","소고기돈가스","난반즈케","고등어조림","소고기감자조림",
-                        "함박스테이크","소고기스테이크","노가리","돼지고기볶음","마파두부","꼬치","양배추롤","믈렛","계란후라이","낫토","연두부","계란말이","냉면","소고기고추볶음","돼지고기조림","삼계탕","광어회","연어회","붕어빵","칠리새우","통닭","고기찜만두",
+                        "함박스테이크","소고기스테이크","노가리","돼지고기볶음","마파두부","꼬치","양배추롤","오믈렛","계란후라이","낫토","연두부","계란말이","냉면","소고기고추볶음","돼지고기조림","삼계탕","광어회","연어회","붕어빵","칠리새우","통닭","고기찜만두",
                         "오므라이스","카레돈가스","미트스파게티","새우튀김","감자샐러드","야채샐러드","마카로니샐러드","야채두부스프","돈지루","중국식스프","소고기볼","우엉볶음","주먹밥","피자토스트","메밀소바","핫도그","감자튀김","잡곡밥","찬푸루",
                         "그린커리","오키나와소바","망고푸딩","행인두부","찌개","닭갈비","드라이커리","돌솥밥","쌀국수","빠에야","탄탄멘","쿠시카츠","옐로커리","팬케이크","짬뽕","크레페","티라미수","와플","치즈케이크","쇼트케이크","찹수이","회과육","버섯리조또", "?",
                         "떡국","프렌치토스트","국수","오므라이스","포토푀","치킨너겟","나메로","바게트","죽","장어덮밥","맑은국","유도후","미역볶음","유부초밥","등심돈가스","돈가스","치킨가스","햄돈가스","멘치카츠","말고기","베이글","스콘","또띠아","타코","나초",
-                        "떡갈비","스크램블에그","밥그라탕","라사냐","시저샐러드","오트밀","튀긴고기만두","단팥죽","머핀","팝콘","프로피트롤","도넛","애플파이","파르페","꿔바로우","케밥","감자볶음","오리구이","훠궈","삼겹살","샤오룽바오","월병","에그타르트",
+                        "떡갈비","스크램블에그","밥그라탕","라자냐","시저샐러드","오트밀","튀긴고기만두","단팥죽","머핀","팝콘","프로피트롤","도넛","애플파이","파르페","꿔바로우","케밥","감자볶음","오리구이","훠궈","삼겹살","샤오룽바오","월병","에그타르트",
                         "소고기국수","돈가스","루러우판","오뎅탕","굴오믈렛","찹쌀밥","무조림","취두부","무화과","카오소이","새우스프","파파야샐러드","닭고기양념밥","라구","야채복음","돼지불고기","돼지꼬치구이","치킨샐러드","생선카레국수","찹쌀국수","레몬돼지고기",
                         "족발","돼지목살","홍합볶음","버팔로윙","제육덮밥","오리고기덮밥","수육","완탕","치킨카레라이스","볶음면","치킨카레국수","코코넛스프","베트남쌀국수","소고기쌀국수","당면","에그롤","딤섬","새우전","고기만두","반쎄오","쌀케이크","찹쌀떡","로코모코","하우피아크림파이",
                         "하와이도넛","월남쌈","스팸주먹밥","꼬리곰탕","닭볶음탕","춘권","브라우니","츄러스","토마토리조또","나시고렝","닭튀김","숯불치킨","닭죽");
@@ -537,10 +543,11 @@ public class YoloActivity extends AppCompatActivity {
                 Imgproc.putText(frame, cocoNames.get(idGuy) + " " + intConf + "%", box.tl(), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 0), 2);
 
                 addIngredients.setText(cocoNamesKR.get(idGuy));
+                foodName = addIngredients.getText().toString();
 
                 Imgproc.rectangle(frame, box.tl(), box.br(), new Scalar(255, 0, 0), 2);
 
-                //getFoodData();
+                getFoodData();
             }
 
         }
@@ -576,15 +583,18 @@ public class YoloActivity extends AppCompatActivity {
         uid = auth.getInstance().getUid();
         dbReference = database.getReference();
 
-        // addLayout
-        linearLayoutYolo = (LinearLayout)findViewById(R.id.Linear_root);
-
         // date
         long curTime = System.currentTimeMillis();
         currentDate = new Date(curTime);
-        dateFormat = new SimpleDateFormat("yyyy" + "년" + "MM" + "월" + "dd" + "일");
+        dateFormat = new SimpleDateFormat("yyMMdd");
         dbDate = dateFormat.format(currentDate);
 
+        // Spinner
+        yoloAmount = (Spinner) findViewById(R.id.SP_yoloAmount);
+
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spItems);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        yoloAmount.setAdapter(adapter);
 
         //opencv 로드
         boolean load = OpenCVLoader.initDebug();
@@ -596,6 +606,9 @@ public class YoloActivity extends AppCompatActivity {
 
         //yolo 이미지 객체인식
         YOLO();
+
+        db = dbReference.child("FoodInfo").child(uid).child(dbDate);
+
 
         //메인 화면으로 전환
         ImageButton btnmanager=(ImageButton)findViewById(R.id.BT_Manager);
@@ -648,29 +661,45 @@ public class YoloActivity extends AppCompatActivity {
         btn_addFood= (Button)findViewById(R.id.btn_addFood);
         btn_addFood.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { addFoodDB();
+            public void onClick(View v) {
+                if(foodName != null) {
+                    addFoodDB();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    finish();
+                    startActivity(new Intent(YoloActivity.this, MainActivity.class));
+                }
+                else {
+                    Toast.makeText(YoloActivity.this, "사진을 선택해주세요.", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
     }
 
     // 식사 타입 선택(spinner)--------------------------------------------------------------------------
     public void selectmeal() {
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spmeal);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        MealType.setAdapter(adapter);
+        adapterMeal = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spmeal);
+        adapterMeal.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        MealType.setAdapter(adapterMeal);
         MealType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (spmeal[position]) {
                     case "아침":
+                        threeMeal = "Breakfast";
                         break;
                     case "점심":
+                        threeMeal = "Lunch";
                         break;
                     case "저녁":
+                        threeMeal = "Dinner";
                         break;
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
@@ -724,74 +753,91 @@ public class YoloActivity extends AppCompatActivity {
 
 
     public void getFoodData() {
-        //addIngredients
-        dbStore.collection("FOOD").document(String.valueOf(addIngredients)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        DocumentReference docRef = dbStore.collection("FOOD").document(foodName);
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     //문서의 데이터를 담을 DocumentSnapshot 에 작업의 결과를 담는다.
                     DocumentSnapshot document = task.getResult();
-                    HashMap<String, Object> storeInfo = (HashMap<String, Object>) document.getData();
 
-                    //
-                    calory = (double) storeInfo.get("칼로리");
-                    carb = (double) storeInfo.get("탄수화물");
-                    protein = (double) storeInfo.get("단백질");
-                    fat = (double) storeInfo.get("지방");
+
+                    Map<String, Object> storeInfo = (Map<String, Object>) document.getData();
+                    Log.d(TAG, "==============================store Info = " + storeInfo);
+
+                    calory = Double.valueOf(String.valueOf(storeInfo.get("칼로리")));
+                    carb = Double.valueOf(String.valueOf(storeInfo.get("탄수화물")));
+                    protein = Double.valueOf(String.valueOf(storeInfo.get("단백질")));
+                    fat = Double.valueOf(String.valueOf(storeInfo.get("지방")));
+
+                    Log.d(TAG, "===================" + calory + "\n" + carb + "\n" + protein + "\n" + fat);
+
+                    yoloAmount.setSelection(3);
+                    sCalory = String.valueOf((int)(calory * calAmount));
+                    sCarb = String.valueOf((int)(carb * calAmount));
+                    sProtein = String.valueOf((int)(protein * calAmount));
+                    sFat = String.valueOf((int)(fat * calAmount));
+
+                    tvYoloName.setText(foodName);
+                    tvYoloCalory.setText(sCalory+ " Kcal");
+                    tvYoloCarb.setText(sCarb + "g");
+                    tvYoloProtein.setText(sProtein+ "g");
+                    tvYoloFat.setText(sFat+ "g");
 
                     selectAmount();
-
-                    // 인분수 계산
-                    sCalory = String.valueOf(calory * calAmount);
-                    sCarb = String.valueOf(carb * calAmount);
-                    sProtein = String.valueOf(protein * calAmount);
-                    sFat = String.valueOf(fat * calAmount);
-
-                    tvYoloName.setText((CharSequence) addIngredients);
-                    tvYoloCalory.setText(sCalory);
-                    tvYoloCarb.setText(sCarb);
-                    tvYoloProtein.setText(sProtein);
-                    tvYoloFat.setText(sFat);
-
-                } else {
+                }
+                else {
 
                 }
             }
         });
+
     }
 
 
     // 음식 인분 수 스피너
     public void selectAmount() {
-        yoloAmount = (Spinner) findViewById(R.id.SP_yoloAmount);
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spItems);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        yoloAmount.setAdapter(adapter);
         yoloAmount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // "0.25", "0.5", "0.75", "1", "1.25"
+                // "0.25", "0.5", "0.75", "1", "1.25", "2", "3"
                 switch (spItems[position]) {
-                    case "0.25":
+                    case "1/4 인분":
                         calAmount = 0.25;
                         break;
-                    case "0.5":
+                    case "1/2 인분":
                         calAmount = 0.5;
                         break;
-                    case "0.75":
+                    case "3/4 인분":
                         calAmount = 0.75;
                         break;
-                    case "1":
+                    case "1 인분":
                         calAmount = 1;
                         break;
-                    case "1.25":
-                        calAmount = 1.25;
+                    case "1.5 인분":
+                        calAmount = 1.5;
                         break;
-                    //case "1.5":
-                    //calAmount = 1.5;
-                    //  break;
+                    case "2 인분":
+                        calAmount = 2;
+                        break;
+                    case "3 인분":
+                        calAmount = 3;
+                        break;
                 }
+
+                // 인분수 계산
+                sCalory = String.valueOf((int)(calory * calAmount));
+                sCarb = String.valueOf((int)(carb * calAmount));
+                sProtein = String.valueOf((int)(protein * calAmount));
+                sFat = String.valueOf((int)(fat * calAmount));
+
+                tvYoloName.setText(foodName);
+                tvYoloCalory.setText(sCalory+ " Kcal");
+                tvYoloCarb.setText(sCarb + "g");
+                tvYoloProtein.setText(sProtein+ "g");
+                tvYoloFat.setText(sFat+ "g");
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -802,47 +848,60 @@ public class YoloActivity extends AppCompatActivity {
 
     public void addFoodDB() {
 
-        // FoodName - 칼, 3대영양소, 이름
-        HashMap result = new HashMap<>();
-
-        result.put("FoodName", addIngredients);
-        result.put("Calory", sCalory);
-        result.put("Carb", sCarb);
-        result.put("Protein", sProtein);
-        result.put("Fat", sFat);
-
-        DatabaseReference db = dbReference.child("FoodInfo").child(uid).child(dbDate);
-
-        db.child("Breakfast").child(String.valueOf(addIngredients)).setValue(result);
-
-
-        // DailyCalory, DailyCarb, DailyProtein, DailyFat 불러오고 수정 업데이트
-        db.addValueEventListener(new ValueEventListener() {
+        db.get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot postSnapshot : dataSnapshot.getChildren()){
-                    HashMap<String, String> value = (HashMap<String, String>) postSnapshot.getValue();
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                DailyInfo dInfo = dataSnapshot.getValue(DailyInfo.class);
+                if(dInfo != null){
+                    // Get DailyInfo
+                    String cal = dInfo  .getDailyCalory();
+                    String carb = dInfo.getDailyCarb();
+                    String protein = dInfo.getDailyProtein();
+                    String fat = dInfo.getDailyFat();
 
-                    int dCalory = (int) (Double.parseDouble(value.get("DailyCalory")) + calory);
-                    int dCarb = (int) (Double.parseDouble(value.get("DailyCarb")) + carb);
-                    int dProtein = (int) (Double.parseDouble(value.get("DailyProtein")) + protein);
-                    int dFat = (int) (Double.parseDouble(value.get("DailyFat")) + fat);
+                    int dCalory = Integer.valueOf(cal) + Integer.valueOf(sCalory);
+                    int dCarb = Integer.valueOf(carb) + Integer.valueOf(sCarb);
+                    int dProtein = Integer.valueOf(protein) + Integer.valueOf(sProtein);
+                    int dFat = Integer.valueOf(fat) + Integer.valueOf(sFat);
 
-                    HashMap<String, String> dailyResult = new HashMap<String, String>();
+                    HashMap dailyResult = new HashMap();
                     dailyResult.put("DailyCalory", String.valueOf(dCalory));
                     dailyResult.put("DailyCarb", String.valueOf(dCarb));
                     dailyResult.put("DailyProtein", String.valueOf(dProtein));
                     dailyResult.put("DailyFat", String.valueOf(dFat));
 
-                    db.setValue(dailyResult);
+                    db.updateChildren(dailyResult);
+
+                }
+                else {
+
+                    HashMap dailyResult = new HashMap();
+
+                    dailyResult.put("DailyCalory", String.valueOf(sCalory));
+                    dailyResult.put("DailyCarb", String.valueOf(sCarb));
+                    dailyResult.put("DailyProtein", String.valueOf(sProtein));
+                    dailyResult.put("DailyFat", String.valueOf(sFat));
+
+                    db.updateChildren(dailyResult);
                 }
             }
-
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(@NonNull Exception e) {
 
             }
         });
+
+        // FoodName - 칼, 3대영양소, 이름
+        HashMap result = new HashMap<>();
+
+        result.put("FoodName", foodName);
+        result.put("Calory", sCalory);
+        result.put("Carb", sCarb);
+        result.put("Protein", sProtein);
+        result.put("Fat", sFat);
+
+        db.child(threeMeal).child(foodName).setValue(result);
     }
 }
 

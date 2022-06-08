@@ -14,13 +14,6 @@
             android:id="@+id/Linear_root_thumbnail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/IV_Test"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:srcCompat="@tools:sample/avatars" />
-        </LinearLayout>
+            android:orientation="vertical"/>
     </ScrollView>
 </LinearLayout>

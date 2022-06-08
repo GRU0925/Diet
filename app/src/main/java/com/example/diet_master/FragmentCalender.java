@@ -3,7 +3,6 @@ package com.example.diet_master;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +51,6 @@ public class FragmentCalender extends Fragment {
     LinearLayout lLayout;
     ImageView ivItemFood;
 
-
     // Database
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference dbReference;
@@ -64,7 +62,6 @@ public class FragmentCalender extends Fragment {
     // Storage
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
-
     SimpleDateFormat dateFormat4DB;
     String dbDate;
     CalendarView calendarView;
@@ -85,7 +82,7 @@ public class FragmentCalender extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_calender, container, false);
-        lLayout = rootView.findViewById(R.id.Linear_root);
+        lLayout = rootView.findViewById(R.id.Linear_calender);
         calendarView = rootView.findViewById(R.id.calendarView);
         TV_Date = rootView.findViewById(R.id.TV_Date);
 
@@ -94,7 +91,6 @@ public class FragmentCalender extends Fragment {
         showDate();
 
         uid = auth.getInstance().getUid();
-        Log.d(TAG,"uid=============" + uid);
         dbReference = FirebaseDatabase.getInstance().getReference();
 
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener()
@@ -102,22 +98,22 @@ public class FragmentCalender extends Fragment {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int cYear, int cMonth, int cDay)
             {
-                TV_Date.setText(String.format("%d/%d/%d", cYear, cMonth + 1, cDay));
-
                 // change year
                 year = String.valueOf(cYear);
 
-                // chagne month
+                // change month
                 if(cMonth+1 < 10) {
                     month = String.format("%02d", cMonth +1);
                 }
                 else { month = String.valueOf(cMonth + 1);}
 
-                // chagne day format
+                // change day format
                 if(cDay < 10) {
                     day = String.format("%02d", cDay);
                 }
                 else { day = String.valueOf(cDay);}
+
+                TV_Date.setText(String.format(year + "/" +  month + "/" + day));
 
                 String date = year + month + day;
 
@@ -151,7 +147,7 @@ public class FragmentCalender extends Fragment {
         lLayout.removeAllViewsInLayout();
 
         for (String three : threeMeal) {
-            dbReference.child("FoodInfo").child("Uid").child(calenderDate).child(three).orderByKey().addValueEventListener(new ValueEventListener() {
+            dbReference.child("FoodInfo").child(uid).child(calenderDate).child(three).orderByKey().addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 

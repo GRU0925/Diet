@@ -68,12 +68,12 @@ public class SignUp extends AppCompatActivity {
         uid = auth.getInstance().getUid();
 
         if(currentUser != null) {
-            Toast.makeText(SignUp.this, "유저o", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "uid---------------------------" + auth.getInstance().getUid());
+            //Toast.makeText(SignUp.this, "유저o", Toast.LENGTH_SHORT).show();
+            //Log.d(TAG, "uid---------------------------" + auth.getInstance().getUid());
         }
         else{
-            Toast.makeText(SignUp.this, "유저x", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "uid---------------------------" + auth.getInstance().getUid());
+            //Toast.makeText(SignUp.this, "유저x", Toast.LENGTH_SHORT).show();
+            //Log.d(TAG, "uid---------------------------" + auth.getInstance().getUid());
         }
 
         selectSex();

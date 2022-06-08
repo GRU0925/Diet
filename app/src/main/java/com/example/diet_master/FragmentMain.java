@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -160,9 +158,9 @@ public class FragmentMain extends Fragment {
 
     // DailyInfo(일일섭취 칼로리, 3대영양소 표시)
     public void showDateInfo() {
-        dbReference.child("FoodInfo").child(uid).child(dbDate).addValueEventListener(new ValueEventListener() {
+        dbReference.child("FoodInfo").child(uid).child(dbDate).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onSuccess(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.getValue(DailyInfo.class) != null){
                     dInfo = dataSnapshot.getValue(DailyInfo.class);
 
@@ -178,6 +176,7 @@ public class FragmentMain extends Fragment {
                     tvProtein.setText(dProtein + "g");
                     tvFat.setText(dFat + "g");
 
+                    //null값
                     // Progressbar setMy
                     pgMyCal.setProgress(Integer.parseInt(dMyCal));
                     pgCarb.setProgress(Integer.parseInt(dCarb));
@@ -186,6 +185,14 @@ public class FragmentMain extends Fragment {
 
                 }
                 else {
+/*
+                    HashMap result = new HashMap<>();
+                    result.put("DailyCalory", 0);
+                    result.put("DailyCarb", 0);
+                    result.put("DailyProtein", 0);
+                    result.put("DailyFat", 0);
+                    dbReference.child("FoodInfo").child(uid).child(dbDate).setValue(result);
+*/
                     tvMyCal.setText("0");
                     tvCarb.setText("0g");
                     tvProtein.setText("0g");
@@ -198,56 +205,58 @@ public class FragmentMain extends Fragment {
                     pgFat.setProgress(0);
                 }
             }
-
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getContext(), "Failed to load DB", Toast.LENGTH_SHORT).show();
             }
         });
 
-        dbReference.child("UserInfo").child(uid).addValueEventListener(new ValueEventListener() {
+        dbReference.child("UserInfo").child(uid).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dInfo = dataSnapshot.getValue(DailyInfo.class);
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue(DailyInfo.class) != null) {
+                    dInfo = dataSnapshot.getValue(DailyInfo.class);
 
-                dRecoCal = dInfo.getRecoCal();
-                dRecoCarb = dInfo.getRecoCarb();
-                dRecoProtein = dInfo.getRecoProtein();
-                dRecoFat = dInfo.getRecoFat();
-                dBasicRate = dInfo.getBasicRate();
+                    dRecoCal = dInfo.getRecoCal();
+                    dRecoCarb = dInfo.getRecoCarb();
+                    dRecoProtein = dInfo.getRecoProtein();
+                    dRecoFat = dInfo.getRecoFat();
+                    dBasicRate = dInfo.getBasicRate();
 
-                // set 권장, 기초대사량(소모칼로리로 변경 요)
-                tvRecoCalinPG.setText(dRecoCal + " Kcal");
-                tvRecoCal.setText(dRecoCal + "Kcal");
-                tvUseCal.setText(dBasicRate + "Kcal");
+                    // set 권장, 기초대사량(소모칼로리로 변경 요)
+                    tvRecoCalinPG.setText(dRecoCal + " Kcal");
+                    tvRecoCal.setText(dRecoCal + "Kcal");
+                    tvUseCal.setText(dBasicRate + "Kcal");
 
-                // setText 권장3대 영양소
-                tvRecoCarb.setText(" / " + dRecoCarb + "g");
-                tvRecoProtein.setText(" / " + dRecoProtein + "g");
-                tvRecoFat.setText(" / " + dRecoFat + "g");
+                    // setText 권장3대 영양소
+                    tvRecoCarb.setText(" / " + dRecoCarb + "g");
+                    tvRecoProtein.setText(" / " + dRecoProtein + "g");
+                    tvRecoFat.setText(" / " + dRecoFat + "g");
 
-                // Progressbar setMax
-                pgMyCal.setMax(Integer.parseInt(dRecoCal));
-                pgCarb.setMax(Integer.parseInt((dRecoCarb)));
-                pgProtein.setMax(Integer.parseInt(dRecoProtein));
-                pgFat.setMax(Integer.parseInt(dRecoFat));
+                    // Progressbar setMax
+                    pgMyCal.setMax(Integer.parseInt(dRecoCal));
+                    pgCarb.setMax(Integer.parseInt((dRecoCarb)));
+                    pgProtein.setMax(Integer.parseInt(dRecoProtein));
+                    pgFat.setMax(Integer.parseInt(dRecoFat));
+                }
+                else {}
             }
-
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load DB", Toast.LENGTH_SHORT).show();
+            public void onFailure(@NonNull Exception e) {
+
             }
         });
     }
 
     public void addFoodInfo() {
-
         String[] threeMeal = {"Breakfast","Lunch", "Dinner"};
 
         for(String three : threeMeal ) {
-            dbReference.child("FoodInfo").child(uid).child(dbDate).child(three).addValueEventListener(new ValueEventListener() {
+            dbReference.child("FoodInfo").child(uid).child(dbDate).child(three).get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                public void onSuccess(DataSnapshot dataSnapshot) {
 
                     AddThreeMeal itemThreemeal = new AddThreeMeal(getContext());
                     tvItemThreemeal = itemThreemeal.findViewById(R.id.TV_threemeal);
@@ -289,9 +298,9 @@ public class FragmentMain extends Fragment {
                         lLayout.addView(item);
                     }
                 }
-
+            }).addOnFailureListener(new OnFailureListener() {
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+                public void onFailure(@NonNull Exception e) {
                     Toast.makeText(getContext(), "Failed to load DB", Toast.LENGTH_SHORT).show();
                 }
             });

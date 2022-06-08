@@ -18,12 +18,12 @@
 
         <ScrollView
             android:id="@+id/scrollView2"
-            android:layout_width="410dp"
-            android:layout_height="224dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <TextView
@@ -34,9 +34,9 @@
                     android:text="TextView" />
 
                 <LinearLayout
-                    android:id="@+id/Linear_root"
+                    android:id="@+id/Linear_calender"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical"></LinearLayout>
 
             </LinearLayout>
