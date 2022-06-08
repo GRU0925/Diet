@@ -272,10 +272,10 @@ public class FragmentMain extends Fragment {
                         tvItemFat = item.findViewById(R.id.TV_itemFat);
 
                         tvItemFoodname.setText(key);
-                        tvItemCal.setText(value.get("Calory"));
-                        tvItemCarb.setText(value.get("Carb"));
-                        tvItemProtein.setText(value.get("Protein"));
-                        tvItemFat.setText(value.get("Fat"));
+                        tvItemCal.setText(value.get("Calory")+ "Kcal");
+                        tvItemCarb.setText(value.get("Carb") + "g");
+                        tvItemProtein.setText(value.get("Protein") + "g");
+                        tvItemFat.setText(value.get("Fat") + "g");
 
                         // ImageView
                         storage.getReferenceFromUrl(storageRef + "FoodInfo/" + uid + "/" + dbDate + "/" + three + "/" + key + ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
